@@ -171,4 +171,5 @@ If advancing this service to a high-volume production environment:
    - *Ambiguity*: The specification asks to *"Provide functionality to process pending notifications"* without specifying whether it should be an API endpoint, background worker, or both.
    - *Interpretation*: Both are provided! `POST /api/notifications/process` allows explicit on-demand batch execution, and `NotificationBackgroundWorker` can be enabled in configuration for automatic asynchronous polling.
 #   N o t i f i c a t i o n - P u s h - A P I  
+ #   N o t i f i c a t i o n - P u s h - A P I  
  

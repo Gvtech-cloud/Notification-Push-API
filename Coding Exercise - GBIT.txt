@@ -1,0 +1,216 @@
+# Candidate Coding Exercise – Notification Processing API
+
+## Scenario
+
+Build a small **.NET Web API** for processing customer notifications.
+
+The system receives notification requests from different parts of an application and is responsible for validating, storing and processing those requests.
+
+For the purpose of this exercise, initially support **Email notifications only**.
+
+A notification request contains:
+
+- Customer ID
+- Notification type
+- Recipient
+- Subject
+- Message
+- Priority
+- Requested delivery time
+
+A sample request could look like:
+
+```json
+{
+  "customerId": "CUST-101",
+  "type": "Email",
+  "recipient": "customer@example.com",
+  "subject": "Order Confirmed",
+  "message": "Your order has been confirmed.",
+  "priority": "Normal",
+  "requestedDeliveryTime": "2026-10-06T12:30:00Z"
+}
+```
+
+---
+
+## Functional Requirements
+
+### 1. Create a notification
+
+Create an endpoint that accepts a new notification request.
+
+The system should validate the request before accepting it.
+
+At minimum:
+
+- Customer ID is required.
+- Notification type is required.
+- Recipient is required.
+- Message is required.
+- Email recipients must contain a valid email address.
+- Priority can only be:
+  - Low
+  - Normal
+  - High
+- Requested delivery time cannot be in the past.
+
+If validation fails, return an appropriate response explaining the problem.
+
+---
+
+### 2. Store notifications
+
+Accepted notifications should be stored.
+
+You may use:
+
+- an in-memory repository,
+- SQLite,
+- or another lightweight persistence mechanism.
+
+Choose whichever approach you think is appropriate for the exercise.
+
+Each notification should have:
+
+- a unique ID,
+- creation timestamp,
+- processing status.
+
+Possible statuses:
+
+- Pending
+- Processing
+- Sent
+- Failed
+
+---
+
+### 3. Retrieve notifications
+
+Provide an API for retrieving a notification by ID.
+
+Also provide an API for retrieving notifications for a particular customer.
+
+---
+
+### 4. Process notifications
+
+Provide functionality to process pending notifications.
+
+For this assignment, you do **not** need to integrate with a real email provider.
+
+Create an abstraction that represents the external notification provider.
+
+The implementation may simply simulate sending the notification.
+
+For example, it can log that the message was sent successfully.
+
+---
+
+## Business Rules
+
+The following rules apply:
+
+### High-priority notifications
+
+High-priority notifications should be processed before Normal and Low-priority notifications.
+
+### Duplicate requests
+
+Occasionally, the calling system retries requests because of network timeouts.
+
+If the exact same request is submitted twice within a short period, the system should avoid sending the notification twice.
+
+How you identify and handle duplicates is up to you.
+
+Be prepared to explain your approach.
+
+### Provider failures
+
+The notification provider may occasionally fail.
+
+The application should handle this without crashing.
+
+Consider what should happen to the notification status when this occurs.
+
+---
+
+## Edge Cases
+
+Think about and handle reasonable edge cases.
+
+Examples include:
+
+- invalid email addresses,
+- missing required data,
+- duplicate requests,
+- delivery time exactly equal to the current time,
+- provider failure,
+- retrieving a notification that does not exist,
+- multiple notifications having the same priority.
+
+You may identify additional cases yourself.
+
+---
+
+## Technical Expectations
+
+Please use:
+
+- .NET / ASP.NET Core
+- C#
+
+You are free to choose the exact project structure.
+
+We are interested in seeing how you organize:
+
+- API/controller responsibilities,
+- business logic,
+- persistence,
+- validation,
+- external dependencies,
+- error handling.
+
+Do not over-engineer the solution.
+
+Use abstractions where they provide meaningful value.
+
+---
+
+## Testing
+
+Add tests for the parts of the solution you believe are important.
+
+You are not expected to achieve a particular code-coverage percentage.
+
+We are more interested in **what you choose to test and why**.
+
+---
+
+## Documentation
+
+Include a short README explaining:
+
+1. How to run the application.
+2. Your overall design.
+3. Important assumptions you made.
+4. Any trade-offs you made.
+5. Anything you would improve if this were going to production.
+6. Any requirement you found unclear and how you interpreted it.
+
+---
+
+## Time Expectation
+
+The intention is not to build a production-ready notification platform.
+
+Please focus on:
+
+- clean reasoning,
+- understandable code,
+- appropriate separation of responsibilities,
+- correctness,
+- and your engineering decisions.
+
+Avoid spending unnecessary time on UI, deployment infrastructure or visual polish.
