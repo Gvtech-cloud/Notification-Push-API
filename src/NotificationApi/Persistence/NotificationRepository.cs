@@ -33,11 +33,14 @@ public class NotificationRepository : INotificationRepository
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(customerId);
 
-        return await _context.Notifications
+        var list = await _context.Notifications
             .AsNoTracking()
             .Where(n => n.CustomerId == customerId)
-            .OrderByDescending(n => n.CreatedAt)
             .ToListAsync(cancellationToken);
+
+        return list
+            .OrderByDescending(n => n.CreatedAt)
+            .ToList();
     }
 
     public async Task<Notification?> FindRecentDuplicateAsync(
@@ -47,10 +50,14 @@ public class NotificationRepository : INotificationRepository
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyHash);
 
-        return await _context.Notifications
-            .Where(n => n.IdempotencyHash == idempotencyHash && n.CreatedAt >= createdAfter)
+        var candidates = await _context.Notifications
+            .Where(n => n.IdempotencyHash == idempotencyHash)
+            .ToListAsync(cancellationToken);
+
+        return candidates
+            .Where(n => n.CreatedAt >= createdAfter)
             .OrderByDescending(n => n.CreatedAt)
-            .FirstOrDefaultAsync(cancellationToken);
+            .FirstOrDefault();
     }
 
     public async Task<IReadOnlyList<Notification>> GetPendingForProcessingAsync(
@@ -58,14 +65,17 @@ public class NotificationRepository : INotificationRepository
         int maxBatchSize,
         CancellationToken cancellationToken = default)
     {
-        return await _context.Notifications
-            .Where(n => n.Status == NotificationStatus.Pending &&
-                        (n.RequestedDeliveryTime == null || n.RequestedDeliveryTime <= asOfTime))
+        var pending = await _context.Notifications
+            .Where(n => n.Status == NotificationStatus.Pending)
+            .ToListAsync(cancellationToken);
+
+        return pending
+            .Where(n => n.RequestedDeliveryTime == null || n.RequestedDeliveryTime <= asOfTime)
             .OrderBy(n => n.Priority)
             .ThenBy(n => n.RequestedDeliveryTime ?? n.CreatedAt)
             .ThenBy(n => n.CreatedAt)
             .Take(maxBatchSize)
-            .ToListAsync(cancellationToken);
+            .ToList();
     }
 
     public async Task UpdateAsync(Notification notification, CancellationToken cancellationToken = default)
